@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel ="stylesheet" href="styles.css">
+    <title>PokeMemory</title>
+</head>
+<body>
+    <header>
+        <h1>PokeMemory</h1>
+        <div id="user-bar">
+            <p>Username: <span id="user-name"></span></p>
+            <div id = "user-pokemon-fav"></div>
+            <button id="logout-btn">Cerrar sesión</button>
+        </div>
+    </header>
+    <section id="section-login">
+        <form id="profile-form">
+            <input type="text" id="username" minlength="3" maxlength="15" required>
+            <input type="text" id="pokemon-search">
+        </form>
+        <ul id="pokemon-matches">
+            <li></li>
+        </ul>
+        <div id="selected-pokemon-preview">
+            <p>Pokemon<span id="name-pokemon">Pokemon: </span></p>
+            <img id="pokemon-img-preview" src="" alt="Vista previa"> 
+        </div>
+    </section>
+    <section id="section-game">
+        <input type="number" id="card-count" min="2" step="2">
+        <button id="start-game-btn">Comenzar</button>
+        <button id="reset-game-btn">Reiniciar</button>
+        <p>Tiempo: <span id="timer"></span></p>
+        <div id="game-board"></div>
+    </section>
+    <section id="section-ranking">
+        <h2>Ranking Global</h2>
+        <p id="empty-ranking-msg">Aún no hay partidas registradas</p>
+        <table id="tabla-ranking">
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Jugador</th>
+                    <th>Pokemon</th>
+                    <th>Tiempo</th>
+                    <th>Cartas</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+        </table>
+    </section>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
