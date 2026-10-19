@@ -43,6 +43,7 @@ const rankingBody = document.getElementById('ranking-body');
 init();
 
 function init() {
+    renderRanking(); 
     const profile = getSession();
     if (profile !== null) {
         sectionLogin.style.display = 'none';
@@ -50,8 +51,11 @@ function init() {
         sectionRanking.style.display = 'block';
         userBar.style.display = 'block';
         userNameSpan.textContent = profile.username;
-        userPokemonFavDiv.innerHTML = `<img src="${profile.pokemon.image}" alt="${profile.pokemon.name}" title="${profile.pokemon.name}" width="35">`;
-        // renderRanking(); 
+        if (profile.pokemon && profile.pokemon.image){
+            userPokemonFavDiv.innerHTML = `<img src="${profile.pokemon.image}" alt="${profile.pokemon.name}" title="${profile.pokemon.name}" width="35">`;
+        } else {
+            userPokemonFavDiv.innerHTML = '';
+        }
     } else {
         sectionLogin.style.display = 'block';
         sectionGame.style.display = 'none';
@@ -60,6 +64,7 @@ function init() {
     }
 }
 
+init();
 //===============================
 //    Manejo de envio del form 
 //===============================
