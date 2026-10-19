@@ -186,6 +186,46 @@ function handleWin() {
     clearInterval(timerInterval);
 
     const finalTime = timerSpan.textContent;
+    const session = getSession();
+    const cardCount = parseInt(cardCountInput.value);
+
+    // guardamos el resultado en localStorage
+    saveResults({
+        username : session?.username || 'Anonymous',
+        pokemonFav : session?.pokemonFav || null,
+        time : finalTime,
+        cardCount : cardCount,
+        date : new Date().toLocaleString()
+    });
+
+    renderRanking();
+
     alert(`¡Felicidades! Has encontrado todas la parejas en ${finalTime}.`)
 }
+
+function renderRanking () {
+    const rankingData = getRanking();
+    //comprobamos si hy registros
+    if (!rankingData || rankingData === 0) {
+        emptyRankingMsg.style.display = 'block';
+        rankingTable.style.display = 'none';
+        return;
+    }
+    //si hay datos, mostramos la tabla 
+    emptyRankingMsg.style.display = 'none';
+    rankingBody.style.display = 'table';
+    rankingBody.innerHTML = '';
+
+    rankingData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.username}</td>
+            <td>${item.pokemonFav ? `<img src="\${item.pokemonFav}" width="30">` : '-'}</td>
+            <td>${item.time}</td>
+            <td>${item.date}</td>
+            `;
+            rankingBody.appendChild(tr);
+    });
+}
+
 
