@@ -1,5 +1,6 @@
 import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage';
 import { getPokemon, getRandomPokemon } from './services/pokeapi';
+import { resetGameLogic, flipCards } from './logic/game';
 
 //===============================
 // Seleccion de elementos del DOM
@@ -119,6 +120,7 @@ logoutBtn.addEventListener('click', () => {
 //===============================
 
 startGameBtn.addEventListener('click', async() => {
+    resetGameLogic();
     const cardCount = parseInt(cardCountInput.value);
     if (!cardCount || cardCount < 2 || cardCount % 2 !== 0) {
         alert('Por favor, ingresa un número par válido (mínimo 2).');
@@ -140,6 +142,10 @@ startGameBtn.addEventListener('click', async() => {
         card.dataset.pokemonId = pokemon.id;
 
         card.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+
+        card.addEventListener('click', () => {
+            flipCards(card, cardCount / 2, handleWin);
+        });
         gameBoard.appendChild(card);
     });
 
@@ -147,6 +153,14 @@ startGameBtn.addEventListener('click', async() => {
 
 });
 
+resetGameBtn.addEventListener('click', () =>{
+    clearInterval(timerInterval);
+
+    timerSpan.textContent = '00:00';
+    resetGameLogic();
+
+    gameBoard.innerHTML = '';
+});
 
 // ========================
 // Variables para el timer
@@ -166,5 +180,12 @@ function startTimer() {
         const seconds = String(secondsElapsed % 60).padStart(2, '0');
         timerSpan.textContent = `${minutes}:${seconds}`;
     }, 1000);
+}
+
+function handleWin() {
+    clearInterval(timerInterval);
+
+    const finalTime = timerSpan.textContent;
+    alert(`¡Felicidades! Has encontrado todas la parejas en ${finalTime}.`)
 }
 
