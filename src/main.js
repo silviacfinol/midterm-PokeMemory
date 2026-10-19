@@ -124,6 +124,7 @@ logoutBtn.addEventListener('click', () => {
 //===============================
 
 startGameBtn.addEventListener('click', async() => {
+    resetGameLogic();
     const cardCount = parseInt(cardCountInput.value);
     if (!cardCount || cardCount < 2 || cardCount % 2 !== 0) {
         alert('Por favor, ingresa un número par válido (mínimo 2).');
@@ -145,6 +146,10 @@ startGameBtn.addEventListener('click', async() => {
         card.dataset.pokemonId = pokemon.id;
 
         card.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+
+        card.addEventListener('click', () => {
+            flipCards(card, cardCount / 2, handleWin);
+        });
         gameBoard.appendChild(card);
     });
 
@@ -152,6 +157,14 @@ startGameBtn.addEventListener('click', async() => {
 
 });
 
+resetGameBtn.addEventListener('click', () =>{
+    clearInterval(timerInterval);
+
+    timerSpan.textContent = '00:00';
+    resetGameLogic();
+
+    gameBoard.innerHTML = '';
+});
 
 // ========================
 // Variables para el timer
@@ -172,4 +185,51 @@ function startTimer() {
         timerSpan.textContent = `${minutes}:${seconds}`;
     }, 1000);
 }
+
+function handleWin() {
+    clearInterval(timerInterval);
+
+    const finalTime = timerSpan.textContent;
+    const session = getSession();
+    const cardCount = parseInt(cardCountInput.value);
+
+    // guardamos el resultado en localStorage
+    saveResults({
+        username : session?.username || 'Anonymous',
+        pokemonFav : session?.pokemonFav || null,
+        time : finalTime,
+        cardCount : cardCount,
+        date : new Date().toLocaleString()
+    });
+
+    renderRanking();
+
+    alert(`¡Felicidades! Has encontrado todas la parejas en ${finalTime}.`)
+}
+
+function renderRanking () {
+    const rankingData = getRanking();
+    //comprobamos si hy registros
+    if (!rankingData || rankingData === 0) {
+        emptyRankingMsg.style.display = 'block';
+        rankingTable.style.display = 'none';
+        return;
+    }
+    //si hay datos, mostramos la tabla 
+    emptyRankingMsg.style.display = 'none';
+    rankingBody.style.display = 'table';
+    rankingBody.innerHTML = '';
+
+    rankingData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.username}</td>
+            <td>${item.pokemonFav ? `<img src="\${item.pokemonFav}" width="30">` : '-'}</td>
+            <td>${item.time}</td>
+            <td>${item.date}</td>
+            `;
+            rankingBody.appendChild(tr);
+    });
+}
+
 
