@@ -1,5 +1,5 @@
-import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage';
-import { getPokemon, getRandomPokemon } from './services/pokeapi';
+import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage.js';
+import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
 
 //===============================
 // Seleccion de elementos del DOM
