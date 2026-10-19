@@ -3,32 +3,49 @@ const RANKING_KEY = 'poke_ranking';
 
 //Bloque de gestion de la sesion activa
 export function saveSession(profile) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(profile));
+    try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(profile));
+    } catch (error) { 
+        console.error('Error al guardar la sesión en sessionStorage', error);
+    }
 }
 
 export function getSession() {
-    const data =sessionStorage.getItem(SESSION_KEY);
-    if (data != null) {
-        return JSON.parse(data);
-    }
+    try {
+        const data =sessionStorage.getItem(SESSION_KEY);
+        return data ? JSON.parse(data) : null;
+    } catch (error) {
+        console.error('Error al guardar la sesión en sessionStorage', error);
+    } 
     return null;
 }
 
 export function clearSession() {
-    sessionStorage.removeItem(SESSION_KEY);
+    try {
+        sessionStorage.removeItem(SESSION_KEY);
+    } catch (error) {
+        console.error('Error al eliminar la sesión:', error);
+    }
 }
 
 //Bloque de gestion del ranking e historial
 export function getRanking() {
-    const data = localStorage.getItem(RANKING_KEY);
-    if (data != null) {
-        return JSON.parse(data);
+    try {
+        const data = localStorage.getItem(RANKING_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (error) {
+        console.error('Error al obtener el ranking de localStorage:', error);
     }
-    return null;
+    return [];
 }
 
 export function saveResults(gameData) {
-    const ranking = getRanking();
-    ranking.push(gameData);
-    localStorage.setItem(RANKING_KEY, JSON.stringify(ranking));
+    try{
+        const ranking = getRanking();
+        ranking.push(gameData);
+        localStorage.setItem(RANKING_KEY, JSON.stringify(ranking));
+
+    } catch (error) {
+        console.error('Error al guardar el resultado en el ranking:', error);
+    }
 }
