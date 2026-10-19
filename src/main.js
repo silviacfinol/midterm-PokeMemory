@@ -60,17 +60,111 @@ function init() {
     }
 }
 
+//===============================
+//    Manejo de envio del form 
+//===============================
 
-const profile = {
-    username: usernameProfile,
-    pokemon: pokemonSelected
-}; 
-
-
-formProfile.addEventListener('submit', (event)) => {
+profileForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    const username = usernameInput.value.trim();
+    const pokemonQuery = pokemonSearchInput.value.trim();
+
+    if (!username || !pokemonQuery) {
+        alert('Por favor, completa todos los campos.');
+        return;
+    }
+
+    const pokemon = await getPokemon(pokemonQuery);
+
+    if (!pokemon) {
+        alert('No se encontró el Pokémon. Por favor, intenta con otro nombre o ID.');
+        return;
+    }
+
+    saveSession({ 
+        username: username, 
+        pokemon: pokemon
+    });
+
+    profileForm.reset();
+    init();
+
+})
+
+pokemonSearchInput.addEventListener('change', async () => {
+    const query = pokemonSearchInput.value.trim();
+    if (!query) {
+        return;
+    }
+
+    const pokemon = await getPokemon(query);
+    if (pokemon) {
+        namePokemonSpan.textContent = `Pokemon: ${pokemon.name}`;
+        pokemonImgPreview.src = pokemon.image;
+        pokemonImgPreview.alt = pokemon.name;
+    } else {
+        namePokemonSpan.textContent = 'Pokemon: No encontrado';
+        pokemonImgPreview.src = '';
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    clearSession();
+    init();
+});
+
+//===============================
+//           Botones
+//===============================
+
+startGameBtn.addEventListener('click', async() => {
+    const cardCount = parseInt(cardCountInput.value);
+    if (!cardCount || cardCount < 2 || cardCount % 2 !== 0) {
+        alert('Por favor, ingresa un número par válido (mínimo 2).');
+        return;
+    }
+
+    const uniquePokemons = await getRandomPokemon(cardCount / 2);
+
+    const cardsData = [...uniquePokemons, ...uniquePokemons]
+
+    cardsData.sort(() => Math.random() - 0.5);
+
+    
+    gameBoard.innerHTML = '';
+    
+    cardsData.forEach(pokemon => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.pokemonId = pokemon.id;
+
+        card.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+        gameBoard.appendChild(card);
+    });
+
+    startTimer();
+
+});
+
+
+// ========================
+// Variables para el timer
+
+let timerInterval = null;
+let secondsElapsed = 0;
+
+function startTimer() {
+    clearInterval(timerInterval);
+
+    secondsElapsed = 0;
+    timerSpan.textContent = '00:00';
+
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const minutes = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
+        const seconds = String(secondsElapsed % 60).padStart(2, '0');
+        timerSpan.textContent = `${minutes}:${seconds}`;
+    }, 1000);
 }
-
-const usernameProfile = document.getElementById('username').value.trim();
-
 
