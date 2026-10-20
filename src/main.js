@@ -152,7 +152,7 @@ logoutBtn.addEventListener('click', () => {
 gameBoard.addEventListener('click', (e) => {
     const card = e.target.closest('.card');
 
-    if (!card || gameBoard.contains(card)) return;
+    if (!card) return;
 
     flipCards(card, currentPairs, handleWin);
 });
@@ -285,7 +285,7 @@ function renderRanking () {
         const pokemonImg = item.pokemon?.image ? `<img src="${item.pokemon.image}" alt="${item.pokemon.name}" width="30">` : '-';
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td>${index.username}<td>
+            <td>${item.username}<td>
             <td>${pokemonImg}</td>
             <td>${item.time}</td>
             <td>${item.cardCount}</td>
