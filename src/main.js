@@ -1,5 +1,6 @@
 import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage.js';
 import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
+import { flipCards, resetGameLogic } from './logic/game.js';
 
 //===============================
 // Seleccion de elementos del DOM
@@ -22,6 +23,7 @@ const usernameInput = document.getElementById('username');
 const pokemonSelectInput = document.getElementById('pokemon-search');
 const pokemonMarchesUl = document.getElementById('pokemon-matches');
 const namePokemonSpan = document.getElementById('name-pokemon');
+const selectedPokemonPreview = document.getElementById('selected-pokemon-preview');
 const pokemonImgPreview = document.getElementById('pokemon-img-preview');
 
 //Panel de juego
@@ -36,6 +38,10 @@ const emptyRankingMsg = document.getElementById('empty-ranking-msg');
 const rankingTable = document.getElementById('ranking-table');
 const rankingBody = document.getElementById('ranking-body');
 
+// Variables para el timer
+let timerInterval = null;
+let secondsElapsed = 0;
+
 //===============================
 //   Inicialización de la app
 //===============================
@@ -46,21 +52,23 @@ function init() {
     renderRanking(); 
     const profile = getSession();
     if (profile !== null) {
-        sectionLogin.style.display = 'none';
-        sectionGame.style.display = 'block';
-        sectionRanking.style.display = 'block';
-        userBar.style.display = 'block';
+        sectionLogin.classList.add('hidden');
+        sectionGame.classList.remove('hidden');
+        sectionRanking.classList.remove('hidden');
+        userBar.classList.remove('hidden');
+
         userNameSpan.textContent = profile.username;
+
         if (profile.pokemon && profile.pokemon.image){
             userPokemonFavDiv.innerHTML = `<img src="${profile.pokemon.image}" alt="${profile.pokemon.name}" title="${profile.pokemon.name}" width="35">`;
         } else {
             userPokemonFavDiv.innerHTML = '';
         }
     } else {
-        sectionLogin.style.display = 'block';
-        sectionGame.style.display = 'none';
-        sectionRanking.style.display = 'none';
-        userBar.style.display = 'none';
+        sectionLogin.classList.remove('hidden');
+        sectionGame.classList.add('hidden');
+        sectionRanking.classList.add('hidden'); 
+        userBar.classList.add('hidden');
     }
 }
 
@@ -93,24 +101,42 @@ profileForm.addEventListener('submit', async (event) => {
     });
 
     profileForm.reset();
+    
+    if (selectedPokemonPreview) {
+        selectedPokemonPreview.classList.add('hidden');
+    }
+
     init();
 
 })
 
-pokemonSearchInput.addEventListener('change', async () => {
+pokemonSearchInput.addEventListener('input', async () => {
     const query = pokemonSearchInput.value.trim();
     if (!query) {
+        namePokemonSpan.textContent = '';
+        pokemonImgPreview.src = '';
+        if (selectedPokemonPreview) {
+            selectedPokemonPreview.classList.add('hidden');
+            return;
+        }
         return;
     }
 
     const pokemon = await getPokemon(query);
+
     if (pokemon) {
-        namePokemonSpan.textContent = `Pokemon: ${pokemon.name}`;
+        namePokemonSpan.textContent = pokemon.name;
         pokemonImgPreview.src = pokemon.image;
         pokemonImgPreview.alt = pokemon.name;
+        if (selectedPokemonPreview) {
+            selectedPokemonPreview.classList.remove('hidden');
+        }
     } else {
         namePokemonSpan.textContent = 'Pokemon: No encontrado';
         pokemonImgPreview.src = '';
+        if (selectedPokemonPreview) {
+            selectedPokemonPreview.classList.add('hidden');
+        }
     }
 });
 
@@ -120,45 +146,74 @@ logoutBtn.addEventListener('click', () => {
 });
 
 //===============================
-//           Botones
+//       Event Delegation
+//===============================
+gameBoard.addEventListener('click', (e) => {
+    const card = e.target.closest('.card');
+
+    if (!card || gameBoard.contains(card)) return;
+
+    flipCards(card, currentPairs, handleWin);
+});
+
+//===============================
+//      Buttons management
 //===============================
 
 startGameBtn.addEventListener('click', async() => {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
     resetGameLogic();
-    const cardCount = parseInt(cardCountInput.value);
+
+    const cardCount = parseInt(cardCountInput.value, 10);
     if (!cardCount || cardCount < 2 || cardCount % 2 !== 0) {
         alert('Por favor, ingresa un número par válido (mínimo 2).');
         return;
     }
 
-    const uniquePokemons = await getRandomPokemon(cardCount / 2);
+    currentPairs = cardCount / 2;
 
-    const cardsData = [...uniquePokemons, ...uniquePokemons]
+    const uniquePokemons = await getRandomPokemon(currentPairs);
+    if (!uniquePokemons || uniquePokemons.length === 0) {
+        alert('Ocurrió un error al cargar las cartas. Intenta de nuevo.');
+        return;
+    }
 
+    const cardsData = [...uniquePokemons, ...uniquePokemons];
     cardsData.sort(() => Math.random() - 0.5);
 
     
     gameBoard.innerHTML = '';
+    const fragment = document.createDocumentFragment();
     
     cardsData.forEach(pokemon => {
         const card = document.createElement('div');
         card.classList.add('card');
         card.dataset.pokemonId = pokemon.id;
 
-        card.innerHTML = `<img src="${pokemon.image}" alt="${pokemon.name}">`;
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-font">?</div>
+                <div class="card-back">
+                    <img src="${pokemon.image}" alt="${pokemon.name}">
+                </div>
+            </div>
+        `;
 
-        card.addEventListener('click', () => {
-            flipCards(card, cardCount / 2, handleWin);
-        });
-        gameBoard.appendChild(card);
+        fragment.appendChild(card);
     });
 
-    startTimer();
+    gameBoard.appendChild(fragment);
 
+    startTimer();
 });
 
 resetGameBtn.addEventListener('click', () =>{
-    clearInterval(timerInterval);
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
 
     timerSpan.textContent = '00:00';
     resetGameLogic();
@@ -166,12 +221,9 @@ resetGameBtn.addEventListener('click', () =>{
     gameBoard.innerHTML = '';
 });
 
-// ========================
-// Variables para el timer
-
-let timerInterval = null;
-let secondsElapsed = 0;
-
+//===============================
+//            Timer
+//===============================
 function startTimer() {
     clearInterval(timerInterval);
 
@@ -186,17 +238,21 @@ function startTimer() {
     }, 1000);
 }
 
+//===============================
+//         End of game
+//===============================
+
 function handleWin() {
     clearInterval(timerInterval);
 
     const finalTime = timerSpan.textContent;
     const session = getSession();
-    const cardCount = parseInt(cardCountInput.value);
+    const cardCount = parseInt(cardCountInput.value, 10);
 
     // guardamos el resultado en localStorage
     saveResults({
         username : session?.username || 'Anonymous',
-        pokemonFav : session?.pokemonFav || null,
+        pokemonFav : session?.pokemon || null,
         time : finalTime,
         cardCount : cardCount,
         date : new Date().toLocaleString()
@@ -206,27 +262,32 @@ function handleWin() {
 
     alert(`¡Felicidades! Has encontrado todas la parejas en ${finalTime}.`)
 }
+//===============================
+//           Ranking
+//===============================
 
 function renderRanking () {
     const rankingData = getRanking();
     //comprobamos si hy registros
-    if (!rankingData || rankingData === 0) {
-        emptyRankingMsg.style.display = 'block';
-        rankingTable.style.display = 'none';
+    if (!rankingData || rankingData.length === 0) {
+        emptyRankingMsg.classList.remove('hidden');
+        rankingTable.classList.add('hidden');
         return;
     }
     //si hay datos, mostramos la tabla 
-    emptyRankingMsg.style.display = 'none';
-    rankingBody.style.display = 'table';
+    emptyRankingMsg.classList.add('hidden');
+    rankingBody.classList.remove('hidden');
     rankingBody.innerHTML = '';
 
-    rankingData.forEach(item => {
+    rankingData.forEach(item, index => {
         const tr = document.createElement('tr');
+        const pokemonImg = item.pokemon?.image ? `<img src="${item.pokemon.image}" alt="${item.pokemon.name}" width="30">` : '-';
         tr.innerHTML = `
-            <td>${item.username}</td>
-            <td>${item.pokemonFav ? `<img src="\${item.pokemonFav}" width="30">` : '-'}</td>
+            <td>${index + 1}</td>
+            <td>${index.username}<td>
+            <td>${pokemonImg}</td>
             <td>${item.time}</td>
-            <td>${item.date}</td>
+            <td>${item.cardCount}</td>
             `;
             rankingBody.appendChild(tr);
     });
