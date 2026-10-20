@@ -81,7 +81,7 @@ profileForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const username = usernameInput.value.trim();
-    const pokemonQuery = pokemonSearchInput.value.trim();
+    const pokemonQuery = pokemonSelectInput.value.trim();
 
     if (!username || !pokemonQuery) {
         alert('Por favor, completa todos los campos.');
