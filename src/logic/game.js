@@ -5,13 +5,13 @@ let matchedPairs = 0;
 let lockBoard = false;
 
 export function resetGameLogic() {
-        flippedCards = [],
-        matchedPairs = 0,
-        lockBoard = false
+    flippedCards = [];
+    matchedPairs = 0;
+    lockBoard = false;
 }
 
 export function flipCards(card, totalPairs, onWin) {
-    if (lockBoard == true || flippedCards.includes(card)) {
+    if (lockBoard === true || flippedCards.includes(card) || card.classList.contains('matched')) {
         return;
     }
     card.classList.add('flipped');
@@ -45,6 +45,7 @@ export function checkMatch(totalPairs, onWin) {
             card2.classList.remove('flipped');
 
             flippedCards = [];
-            lockBoard = false;}, 1000);
+            lockBoard = false;
+        }, 1000);
     }
 } 
