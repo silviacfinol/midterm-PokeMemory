@@ -5,6 +5,9 @@ export async function getPokemon(pokemonSelected) {
         //para limpiar el parámetro de entrada
         const pokemonFormatted = String(pokemonSelected).toLowerCase().trim();
         //pedimos la respuesta a la API
+        if (!pokemonFormatted) {
+            return null;
+        }
         const response = await fetch(`${BASE_URL}/${pokemonFormatted}`)
         if (!response.ok) {
             return null;
@@ -22,14 +25,13 @@ export async function getPokemon(pokemonSelected) {
 }
 
 export async function getRandomPokemon(count) {
-    const pokemons = [];
-    while (pokemons.length < count) {
-        const randomId = Math.floor(Math.random() * 151) +1;
-        const pokemon = await getPokemon(randomId);
-        if (pokemon && !pokemons.some(p => p.id === pokemon.id)) {
-            pokemons.push(pokemon);
-        }
+    const randomId = new Set ();
+    while (randomId < count) {
+        randomId.add(Math.floor(Math.random() * 151) + 1);
     }
-    return pokemons;
+    const promises = Array.from(randomId).map(id => getPokemon(id));
+    const pokemons = await Promise.all(promises);
+
+    return pokemons.filter(pokemon => pokemon !== null);
 }
         
