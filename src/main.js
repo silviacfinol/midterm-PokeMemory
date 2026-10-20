@@ -110,7 +110,7 @@ profileForm.addEventListener('submit', async (event) => {
 
 })
 
-pokemonSearchInput.addEventListener('input', async () => {
+pokemonSelectInput.addEventListener('input', async () => {
     const query = pokemonSearchInput.value.trim();
     if (!query) {
         namePokemonSpan.textContent = '';
