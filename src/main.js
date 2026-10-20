@@ -3,10 +3,10 @@ import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
 import { flipCards, resetGameLogic } from './logic/game.js';
 
 //===============================
-// Seleccion de elementos del DOM
+//        DOM Elements
 //===============================
 
-//Secciones principales
+//Principal sections
 const sectionLogin = document.getElementById('section-login');
 const sectionGame = document.getElementById('section-game');
 const sectionRanking = document.getElementById('section-ranking');
@@ -17,7 +17,7 @@ const userNameSpan = document.getElementById('user-name');
 const userPokemonFavDiv = document.getElementById('user-pokemon-fav');
 const logoutBtn = document.getElementById('logout-btn');
 
-//Formulario de login
+//Login form
 const profileForm = document.getElementById('profile-form');
 const usernameInput = document.getElementById('username');
 const pokemonSelectInput = document.getElementById('pokemon-search');
@@ -26,21 +26,22 @@ const namePokemonSpan = document.getElementById('name-pokemon');
 const selectedPokemonPreview = document.getElementById('selected-pokemon-preview');
 const pokemonImgPreview = document.getElementById('pokemon-img-preview');
 
-//Panel de juego
+//Panel game
 const cardCountInput = document.getElementById('card-count');
 const startGameBtn = document.getElementById('start-game-btn');
 const resetGameBtn = document.getElementById('reset-game-btn');
 const timerSpan = document.getElementById('timer');
 const gameBoard = document.getElementById('game-board');
 
-//Tabla de ranking
+//Ranking board
 const emptyRankingMsg = document.getElementById('empty-ranking-msg');
 const rankingTable = document.getElementById('ranking-table');
 const rankingBody = document.getElementById('ranking-body');
 
-// Variables para el timer
+// Global variables 
 let timerInterval = null;
 let secondsElapsed = 0;
+let currentPairs = 0; 
 
 //===============================
 //   Inicialización de la app
@@ -111,7 +112,7 @@ profileForm.addEventListener('submit', async (event) => {
 })
 
 pokemonSelectInput.addEventListener('input', async () => {
-    const query = pokemonSearchInput.value.trim();
+    const query = pokemonSelectInput.value.trim();
     if (!query) {
         namePokemonSpan.textContent = '';
         pokemonImgPreview.src = '';
@@ -151,7 +152,7 @@ logoutBtn.addEventListener('click', () => {
 gameBoard.addEventListener('click', (e) => {
     const card = e.target.closest('.card');
 
-    if (!card || gameBoard.contains(card)) return;
+    if (!card) return;
 
     flipCards(card, currentPairs, handleWin);
 });
@@ -284,7 +285,7 @@ function renderRanking () {
         const pokemonImg = item.pokemon?.image ? `<img src="${item.pokemon.image}" alt="${item.pokemon.name}" width="30">` : '-';
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td>${index.username}<td>
+            <td>${item.username}<td>
             <td>${pokemonImg}</td>
             <td>${item.time}</td>
             <td>${item.cardCount}</td>

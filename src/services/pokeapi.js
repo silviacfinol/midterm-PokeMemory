@@ -16,7 +16,7 @@ export async function getPokemon(pokemonSelected) {
         return {
             id: fullData.id,
             name: fullData.name,
-            image: fullData.sprites.other[`official-artwork`].front_default || fullData.sprites.front_default
+            image: fullData.sprites.other[`official-artwork`]?.front_default || fullData.sprites.front_default
         };
     } catch (error) {
         console.error('Error al obtener el pokemon', error);
@@ -26,7 +26,7 @@ export async function getPokemon(pokemonSelected) {
 
 export async function getRandomPokemon(count) {
     const randomId = new Set ();
-    while (randomId < count) {
+    while (randomId.size < count) {
         randomId.add(Math.floor(Math.random() * 151) + 1);
     }
     const promises = Array.from(randomId).map(id => getPokemon(id));

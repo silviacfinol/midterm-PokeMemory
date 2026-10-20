@@ -14,6 +14,7 @@ export function flipCards(card, totalPairs, onWin) {
     if (lockBoard === true || flippedCards.includes(card) || card.classList.contains('matched')) {
         return;
     }
+    console.log('carta pulsada:', card);
     card.classList.add('flipped');
     flippedCards.push(card);
 
