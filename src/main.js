@@ -253,7 +253,7 @@ function handleWin() {
     // guardamos el resultado en localStorage
     saveResults({
         username : session?.username || 'Anonymous',
-        pokemonFav : session?.pokemon,
+        pokemonFav : session?.pokemon || null,
         time : finalTime,
         cardCount : cardCount,
         date : new Date().toLocaleString()
@@ -269,7 +269,7 @@ function handleWin() {
 
 function renderRanking () {
     const rankingData = getRanking();
-    //comprobamos si hy registros
+    //comprobamos si hay registros
     if (!rankingData || rankingData.length === 0) {
         emptyRankingMsg.classList.remove('hidden');
         rankingTable.classList.add('hidden');
@@ -282,10 +282,10 @@ function renderRanking () {
 
     rankingData.forEach((item, index) => {
         const tr = document.createElement('tr');
-        const pokemonImg = item.pokemon?.image ? `<img src="${item.pokemon.image}" alt="${item.pokemon.name}" width="30">` : '-';
+        const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
         tr.innerHTML = `
             <td>${index + 1}</td>
-            <td>${item.username}<td>
+            <td>${item.username}</td>
             <td>${pokemonImg}</td>
             <td>${item.time}</td>
             <td>${item.cardCount}</td>
