@@ -1,6 +1,75 @@
+import './style.css'
 import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage.js';
 import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
 import { flipCards, resetGameLogic } from './logic/game.js';
+
+
+document.querySelector('#app').innerHTML = `
+    <header>
+        <h1>PokeMemory</h1>
+        <div id="user-bar" class="hidden">
+            <p>Username: <span id="user-name"></span></p>
+            <div id = "user-pokemon-fav"></div>
+            <button id="logout-btn">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <main>
+    <!-- Login section (ayuda por parte de gemini para definir el orden de los botones)-->
+    <section id="section-login">
+        <h2>Crear Perfil de Jugador</h2>
+        <form id="profile-form">
+            <div>
+                <label for="username">Nombre de usuario:</label>
+                <input type="text" id="username" minlength="3" maxlength="15" placeholder="Tu nombre" required>
+            </div>
+            <div>
+                <label for="pokemon-search">Buscar Pokemon favorito</label>
+                <input type="text" id="pokemon-search" placeholder="Ej: Pikachu" autocomplete="off">
+            </div>
+            <ul id="pokemon-matches" class="hidden">
+                <li></li>
+            </ul>
+            <div id="selected-pokemon-preview" class="hidden">
+                <p>Pokemon seleccionado: <span id="name-pokemon"></span></p>
+                <img id="pokemon-img-preview" src="" alt="Vista previa del pokemon"> 
+            </div>
+            <button type="submit" id="create-profile-btn">Guardar perfil</button>
+        </form>
+        </section>
+
+        <!-- Game section-->
+        <section id="section-game" class="hidden">
+            <h2>Partida</h2>
+            <div>
+                <label for="card-count">Número de cartas (par):</label>
+                <input type="number" id="card-count" min="2" step="2" placeholder="Ej: 4">
+                <button id="start-game-btn">Comenzar</button>
+                <button id="reset-game-btn">Reiniciar</button>
+            </div>
+            <p>Tiempo: <span id="timer"></span></p>
+            <div id="game-board"></div>
+    </section>
+
+    <!-- Global ranking section-->
+    <section id="section-ranking">
+        <h2>Ranking Global</h2>
+        <p id="empty-ranking-msg">Aún no hay partidas registradas</p>
+        <table id="ranking-table">
+            <thead>
+                <tr>
+                    <th>Posición</th>
+                    <th>Jugador</th>
+                    <th>Pokemon</th>
+                    <th>Tiempo</th>
+                    <th>Cartas</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+        </table>
+    </section>
+    </main>
+`
 
 //===============================
 //        DOM Elements
@@ -176,9 +245,9 @@ startGameBtn.addEventListener('click', async() => {
 
     currentPairs = cardCount / 2;
 
-    const uniquePokemons = await getRandomPokemon(currentPairs);
+    const uniquePokemons = await getRandomPokemon(currentPairs);    
     if (!uniquePokemons || uniquePokemons.length === 0) {
-        alert('Ocurrió un error al cargar las cartas. Intenta de nuevo.');
+        console.error('Ocurrió un error al cargar las cartas. Intenta de nuevo.');
         return;
     }
 
@@ -269,13 +338,13 @@ function handleWin() {
 
 function renderRanking () {
     const rankingData = getRanking();
-    //comprobamos si hay registros
+    //check if there's registers
     if (!rankingData || rankingData.length === 0) {
         emptyRankingMsg.classList.remove('hidden');
         rankingTable.classList.add('hidden');
         return;
     }
-    //si hay datos, mostramos la tabla 
+    //if data, show table
     emptyRankingMsg.classList.add('hidden');
     rankingBody.classList.remove('hidden');
     rankingBody.innerHTML = '';
@@ -293,5 +362,3 @@ function renderRanking () {
             rankingBody.appendChild(tr);
     });
 }
-
-
