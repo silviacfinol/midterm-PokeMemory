@@ -2,13 +2,15 @@ const BASE_URL = 'https://pokeapi.co/api/v2/pokemon';
 
 export async function getPokemon(pokemonSelected) {
     try {
-        //para limpiar el parámetro de entrada
+        //to clean the input parameter 
         const pokemonFormatted = String(pokemonSelected).toLowerCase().trim();
-        //pedimos la respuesta a la API
+        
+        //we ask for the api response
         if (!pokemonFormatted) {
             return null;
         }
-        const response = await fetch(`${BASE_URL}/${pokemonFormatted}`)
+        const response = await fetch(`${BASE_URL}/${pokemonFormatted}`);
+        
         if (!response.ok) {
             return null;
         }
@@ -24,7 +26,7 @@ export async function getPokemon(pokemonSelected) {
     }
 }
 
-export async function getRandomPokemon(count) {
+export async function getRandomPokemon(count) {   
     const randomId = new Set ();
     while (randomId.size < count) {
         randomId.add(Math.floor(Math.random() * 151) + 1);
