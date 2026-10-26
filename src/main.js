@@ -347,7 +347,11 @@ function renderRanking () {
     rankingBody.classList.remove('hidden');
     rankingBody.innerHTML = '';    
 
-    rankingData.forEach((item, index) => {
+    if (lastGame && !visibleResults.some(item => item.id === lastGame.id)) {
+        visibleResults.push(lastGame);
+    }
+
+    visibleResults.forEach((item, index) => {
         const tr = document.createElement('tr');
         const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
         tr.innerHTML = `
