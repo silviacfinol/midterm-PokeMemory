@@ -1,27 +1,29 @@
 const BASE_URL = 'https://pokeapi.co/api/v2/pokemon';
 
 export async function getPokemon(pokemonSelected) {
+    //to clean the input parameter 
+    const pokemonFormatted = String(pokemonSelected).toLowerCase().trim();
+    
+    //we ask for the api response
+    if (!pokemonFormatted) {
+        return null;
+    }
+
     try {
-        //to clean the input parameter 
-        const pokemonFormatted = String(pokemonSelected).toLowerCase().trim();
-        
-        //we ask for the api response
-        if (!pokemonFormatted) {
-            return null;
-        }
-        const response = await fetch(`${BASE_URL}/${pokemonFormatted}`);
-        
-        if (!response.ok) {
-            return null;
-        }
-        const fullData = await response.json();
-        return {
-            id: fullData.id,
-            name: fullData.name,
-            image: fullData.sprites.other[`official-artwork`]?.front_default || fullData.sprites.front_default
-        };
+        return fetch(`${BASE_URL}/${pokemonFormatted}`)
+            .then(async (response) => {
+                if (response.status == 200) {
+                        const fullData = await response.json();
+                        return {
+                            id: fullData.id,
+                            name: fullData.name,
+                            image: fullData.sprites.other[`official-artwork`]?.front_default || fullData.sprites.front_default
+                        };
+                }
+            })
+            .catch((error) => console.error(error));
     } catch (error) {
-        console.error('Error al obtener el pokemon', error);
+        console.error('Error getting pokemon', error);
         return null;
     }
 }
