@@ -124,7 +124,6 @@ function init() {
     if (profile !== null) {
         sectionLogin.classList.add('hidden');
         sectionGame.classList.remove('hidden');
-        sectionRanking.classList.remove('hidden');
         userBar.classList.remove('hidden');
 
         userNameSpan.textContent = profile.username;
@@ -137,7 +136,6 @@ function init() {
     } else {
         sectionLogin.classList.remove('hidden');
         sectionGame.classList.add('hidden');
-        sectionRanking.classList.add('hidden'); 
         userBar.classList.add('hidden');
     }
 }
@@ -336,7 +334,7 @@ function handleWin() {
 //           Ranking
 //===============================
 
-function renderRanking () {
+function renderRanking () {    
     const rankingData = getRanking();
     //check if there's registers
     if (!rankingData || rankingData.length === 0) {
@@ -347,18 +345,18 @@ function renderRanking () {
     //if data, show table
     emptyRankingMsg.classList.add('hidden');
     rankingBody.classList.remove('hidden');
-    rankingBody.innerHTML = '';
+    rankingBody.innerHTML = '';    
 
     rankingData.forEach((item, index) => {
         const tr = document.createElement('tr');
         const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
         tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${item.username}</td>
-            <td>${pokemonImg}</td>
-            <td>${item.time}</td>
-            <td>${item.cardCount}</td>
-            `;
-            rankingBody.appendChild(tr);
+        <td>${index + 1}</td>
+        <td>${item.username}</td>
+        <td>${pokemonImg}</td>
+        <td>${item.time}</td>
+        <td>${item.cardCount}</td>
+        `;
+        rankingBody.appendChild(tr);
     });
 }
