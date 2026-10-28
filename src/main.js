@@ -119,7 +119,7 @@ let currentPairs = 0;
 init();
 
 function init() {
-    renderRanking(); 
+    rankingDataLogic(); 
     const profile = getSession();
     if (profile !== null) {
         sectionLogin.classList.add('hidden');
@@ -326,7 +326,7 @@ function handleWin() {
         date : new Date().toLocaleString()
     });
 
-    renderRanking();
+    rankingDataLogic();
 
     alert(`¡Felicidades! Has encontrado todas la parejas en ${finalTime}.`)
 }
@@ -334,33 +334,63 @@ function handleWin() {
 //           Ranking
 //===============================
 
-function renderRanking () {    
+function renderRanking (rankingData) {
+    rankingBody.innerHTML = '';
+    rankingData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.username}</td>
+            <td>${pokemonImg}</td>
+            <td>${item.time}</td>
+            <td>${item.cardCount}</td>
+            `;
+        rankingBody.appendChild(tr);
+
+    });
+}
+
+function rankingDataLogic (showMoreResults = false) {
     const rankingData = getRanking();
-    //check if there's registers
+    //check existing registers
     if (!rankingData || rankingData.length === 0) {
         emptyRankingMsg.classList.remove('hidden');
         rankingTable.classList.add('hidden');
         return;
     }
-    //if data, show table
+
     emptyRankingMsg.classList.add('hidden');
-    rankingBody.classList.remove('hidden');
-    rankingBody.innerHTML = '';    
+    rankingTable.classList.remove('hidden');
 
-    if (lastGame && !visibleResults.some(item => item.id === lastGame.id)) {
-        visibleResults.push(lastGame);
+    //to order the results
+    const sortedData = [...rankingData].sort((a, b) => {
+        if (b.cardCount !== a.cardCount) {
+            return b.cardCount - a.cardCount;
+        }
+        return a.time - b.time;
+    })
+
+    //show results for data =< 5
+    const moreThanFive = sortedData.length > 5;
+    const itemsToRender = (showMoreResults || !moreThanFive) ? sortedData : sortedData.slice(0,5);
+
+    renderRanking(itemsToRender);
+
+    //if data > 5
+    if (moreThanFive && !showMoreResults) {
+            const trBtn = document.createElement('tr');
+            trBtn.id = 'btn-load-more-row';
+            trBtn.innerHTML = `
+                <td colspan="5" class="text-center">
+                <button id="btn-load-more">Cargar más</button>
+                </td>
+            `
+            const btn = trBtn.querySelector('#btn-load-more');
+            btn.addEventListener('click', function() {
+                rankingDataLogic(true);
+                btn.remove();
+            });
+        rankingBody.appendChild(trBtn);
     }
-
-    visibleResults.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
-        tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${item.username}</td>
-        <td>${pokemonImg}</td>
-        <td>${item.time}</td>
-        <td>${item.cardCount}</td>
-        `;
-        rankingBody.appendChild(tr);
-    });
 }

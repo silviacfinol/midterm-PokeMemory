@@ -118,6 +118,17 @@ button:focus-visible { outline: 3px solid #df6654; outline-offset: 3px; }
 #ranking-table tbody tr:nth-child(even) { background: #e7edcf; }
 #ranking-table td img { width: 34px; height: 34px; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
 
+#btn-load-more-row td {
+    padding: 14px 10px;
+    text-align: center;
+    background: #e5eccb;
+}
+
+#btn-load-more {
+    min-width: 180px;
+    font-size: 8px;
+}
+
 @media (max-width: 620px) {
     body { padding: 14px 12px 30px; }
     header { align-items: flex-start; flex-direction: column; padding: 16px; }
@@ -133,4 +144,5 @@ button:focus-visible { outline: 3px solid #df6654; outline-offset: 3px; }
     #ranking-table { font-size: 17px; }
     #ranking-table th, #ranking-table td { padding: 7px 5px; }
     #ranking-table th { font-size: 5px; }
+    #btn-load-more { min-width: 0; width: 100%; font-size: 7px; }
 }
