@@ -236,8 +236,8 @@ startGameBtn.addEventListener('click', async() => {
     resetGameLogic();
 
     const cardCount = parseInt(cardCountInput.value, 10);
-    if (!cardCount || cardCount < 2 || cardCount % 2 !== 0) {
-        alert('Por favor, ingresa un número par válido (mínimo 2).');
+    if (!cardCount || cardCount < 4 || cardCount % 2 !== 0) {
+        alert('Por favor, ingresa un número par válido (mínimo 4).');
         return;
     }
 
