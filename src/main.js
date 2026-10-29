@@ -1,5 +1,5 @@
 import './style.css'
-import { getSession, saveSession, clearSession, getRanking, saveResults } from './utils/storage.js';
+import { getSession, saveSession, clearSession, getRanking, sortedData, saveResults } from './utils/storage.js';
 import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
 import { flipCards, resetGameLogic } from './logic/game.js';
 
@@ -338,6 +338,9 @@ function renderRanking (rankingData) {
     rankingBody.innerHTML = '';
     rankingData.forEach((item, index) => {
         const tr = document.createElement('tr');
+        if (item.id) {
+            tr.dataset.id = item.id;
+        }
         const pokemonImg = item.pokemonFav?.image ? `<img src="${item.pokemonFav.image}" alt="${item.pokemonFav.name}" width="30">` : '-';
         tr.innerHTML = `
             <td>${index + 1}</td>
@@ -352,7 +355,15 @@ function renderRanking (rankingData) {
 }
 
 function rankingDataLogic (showMoreResults = false) {
-    const rankingData = getRanking();
+    const rankingData = sortedData();
+    const lastMatch = getRanking().at(-1);
+
+    if (lastMatch?.id) {
+        const index = rankingData.findIndex(item => item.id === lastMatch.id);
+        if (index !== -1) {
+            rankingData.unshift(rankingData.splice(index, 1)[0]);
+        }
+    }
     //check existing registers
     if (!rankingData || rankingData.length === 0) {
         emptyRankingMsg.classList.remove('hidden');
@@ -363,19 +374,13 @@ function rankingDataLogic (showMoreResults = false) {
     emptyRankingMsg.classList.add('hidden');
     rankingTable.classList.remove('hidden');
 
-    //to order the results
-    const sortedData = [...rankingData].sort((a, b) => {
-        if (b.cardCount !== a.cardCount) {
-            return b.cardCount - a.cardCount;
-        }
-        return a.time - b.time;
-    })
-
     //show results for data =< 5
-    const moreThanFive = sortedData.length > 5;
-    const itemsToRender = (showMoreResults || !moreThanFive) ? sortedData : sortedData.slice(0,5);
+    const moreThanFive = rankingData.length > 5;
+    const itemsToRender = (showMoreResults || !moreThanFive) ? rankingData : rankingData.slice(0,5);
+
 
     renderRanking(itemsToRender);
+    highlightLastMatch();
 
     //if data > 5
     if (moreThanFive && !showMoreResults) {
@@ -392,5 +397,26 @@ function rankingDataLogic (showMoreResults = false) {
                 btn.remove();
             });
         rankingBody.appendChild(trBtn);
+    }
+}
+
+function highlightLastMatch () {
+    const rawData = getRanking();
+    if (!rawData || rawData.length === 0) return;
+
+    //to get the last match
+    let lastMatch = rawData.at(-1);
+    if (!lastMatch || !lastMatch.id) return;   
+    
+    //clear previous highlight
+    const previousMatch = rankingBody.querySelector('.highlight-last');
+    if (previousMatch) {
+        previousMatch.classList.remove('highlight-last');
+    } 
+
+    //search the id 
+    const targetRow = rankingBody.querySelector(`tr[data-id="${lastMatch.id}"]`);
+    if (targetRow) {
+        targetRow.classList.add('highlight-last');
     }
 }
