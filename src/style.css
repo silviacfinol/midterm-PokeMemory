@@ -118,6 +118,17 @@ button:focus-visible { outline: 3px solid #df6654; outline-offset: 3px; }
 #ranking-table tbody tr:nth-child(even) { background: #e7edcf; }
 #ranking-table td img { width: 34px; height: 34px; object-fit: contain; image-rendering: pixelated; vertical-align: middle; }
 
+#ranking-table tbody tr.highlight-last td {
+    color: var(--ink);
+    background: #65c9bd;
+    border-color: #176b63;
+    font-weight: bold;
+}
+
+#ranking-table tbody tr.highlight-last td:first-child {
+    border-left: 6px solid #124f49;
+}
+
 #btn-load-more-row td {
     padding: 14px 10px;
     text-align: center;

@@ -39,10 +39,25 @@ export function getRanking() {
     return [];
 }
 
+export function sortedData() {
+    const rankingData = getRanking();
+    //to order the results
+    const sortData = [...rankingData].sort((a, b) => {
+        if (b.cardCount !== a.cardCount) {
+            return b.cardCount - a.cardCount;
+        }
+        return a.time - b.time;
+    });
+    return sortData;
+}
+
 export function saveResults(gameData) {
     try{
         const ranking = getRanking();
-        ranking.push(gameData);
+        ranking.push({
+            ...gameData,
+            id: gameData.id ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+        });
         localStorage.setItem(RANKING_KEY, JSON.stringify(ranking));
 
     } catch (error) {
