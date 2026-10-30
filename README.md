@@ -61,3 +61,6 @@ src/
 └── ui/styles.css          # UI styles
 index.html                 # HTML entry point
 ```
+
+App: https://midterm-poke-memory.vercel.app/
+Video (demo): https://youtu.be/xtMsPPZRswg
