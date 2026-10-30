@@ -1,4 +1,5 @@
 const BASE_URL = 'https://pokeapi.co/api/v2/pokemon';
+let pokemonNames = null;
 
 export async function getPokemon(pokemonSelected) {
     //to clean the input parameter 
@@ -38,4 +39,21 @@ export async function getRandomPokemon(count) {
 
     return pokemons.filter(pokemon => pokemon !== null);
 }
-        
+
+export async function loadPokemonNames() {
+    if (pokemonNames?.length) return pokemonNames;
+    try {
+        const response = await fetch(`${BASE_URL}?limit=151`);
+        if (!response.ok) {
+            throw new Error('Error al cargarr la lista de pokemons');
+        }
+
+        const data = await response.json();
+        pokemonNames = data.results.map(pokemon => pokemon.name);
+        return pokemonNames;
+    } catch (error) {
+        console.error('Error al obtener la lista de nombres de los pokemons', error);
+        return [];
+    } 
+
+}

@@ -1,6 +1,6 @@
 import './style.css'
 import { getSession, saveSession, clearSession, getRanking, sortedData, saveResults } from './utils/storage.js';
-import { getPokemon, getRandomPokemon } from './services/pokeapi.js';
+import { getPokemon, getRandomPokemon, loadPokemonNames } from './services/pokeapi.js';
 import { flipCards, resetGameLogic } from './logic/game.js';
 
 
@@ -90,7 +90,7 @@ const logoutBtn = document.getElementById('logout-btn');
 const profileForm = document.getElementById('profile-form');
 const usernameInput = document.getElementById('username');
 const pokemonSelectInput = document.getElementById('pokemon-search');
-const pokemonMarchesUl = document.getElementById('pokemon-matches');
+const pokemonMatches = document.getElementById('pokemon-matches');
 const namePokemonSpan = document.getElementById('name-pokemon');
 const selectedPokemonPreview = document.getElementById('selected-pokemon-preview');
 const pokemonImgPreview = document.getElementById('pokemon-img-preview');
@@ -111,6 +111,7 @@ const rankingBody = document.getElementById('ranking-body');
 let timerInterval = null;
 let secondsElapsed = 0;
 let currentPairs = 0; 
+let pokemonNames = [];
 
 //===============================
 //   Inicialización de la app
@@ -179,7 +180,11 @@ profileForm.addEventListener('submit', async (event) => {
 })
 
 pokemonSelectInput.addEventListener('input', async () => {
-    const query = pokemonSelectInput.value.trim();
+    const query = pokemonSelectInput.value.trim().toLowerCase();
+
+    pokemonMatches.replaceChildren();
+    pokemonMatches.classList.add('hidden');
+
     if (!query) {
         namePokemonSpan.textContent = '';
         pokemonImgPreview.src = '';
@@ -190,21 +195,34 @@ pokemonSelectInput.addEventListener('input', async () => {
         return;
     }
 
-    const pokemon = await getPokemon(query);
+    pokemonNames = await loadPokemonNames();
 
-    if (pokemon) {
-        namePokemonSpan.textContent = pokemon.name;
-        pokemonImgPreview.src = pokemon.image;
-        pokemonImgPreview.alt = pokemon.name;
-        if (selectedPokemonPreview) {
+    const matches = pokemonNames.filter(name => name.includes(query)).slice(0,5);
+
+    matches.forEach(name => {
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.textContent = name;
+
+        button.addEventListener('click', async () => {
+            pokemonSelectInput.value = name;
+            pokemonMatches.classList.add('hidden');
+
+            const pokemon = await getPokemon(name);
+            if (!pokemon) return;
+
+            namePokemonSpan.textContent = pokemon.name;
+            pokemonImgPreview.src = pokemon.image;
+            pokemonImgPreview.alt = pokemon.name;
             selectedPokemonPreview.classList.remove('hidden');
-        }
-    } else {
-        namePokemonSpan.textContent = 'Pokemon: No encontrado';
-        pokemonImgPreview.src = '';
-        if (selectedPokemonPreview) {
-            selectedPokemonPreview.classList.add('hidden');
-        }
+        });
+        item.appendChild(button);
+        pokemonMatches.appendChild(item);
+    });
+    if (matches.length >0) {
+        pokemonMatches.classList.remove('hidden');
     }
 });
 
@@ -420,3 +438,4 @@ function highlightLastMatch () {
         targetRow.classList.add('highlight-last');
     }
 }
+
