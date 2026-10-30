@@ -227,6 +227,17 @@ pokemonSelectInput.addEventListener('input', async () => {
 });
 
 logoutBtn.addEventListener('click', () => {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    resetGameLogic();
+    gameBoard.innerHTML = '';
+    timerSpan.textContent = '00:00';
+    cardCountInput.value = '';
+    currentPairs = 0;
+
     clearSession();
     init();
 });
