@@ -1,3 +1,5 @@
+BY: SILVIA DANIELA CASTILLO FINOL
+
 # PokeMemory
 
 PokeMemory is a browser-based Pokémon memory game built with vanilla JavaScript and Vite. Create a player profile with a favorite Pokémon, choose an even number of cards, and find all matching pairs as quickly as you can. Completed games are saved in a local ranking.
